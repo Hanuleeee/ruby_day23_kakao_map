@@ -1,0 +1,73 @@
+<h1>Home#new</h1>
+
+<!--정보를 받아서 저장하는 폼 -->
+
+<%= form_for @post, url: {action: "create"} do |f| %>
+  title : <%= f.text_field :title %> <br/>
+  위치 : <%= f.text_field :lat, id: 'lat' %>
+  <%= f.text_field :lng, id: 'lng' %>
+  <%= f.submit "Create", method:"post" %>
+<% end %>
+
+<body>
+<div id="map" style="width:100%;height:350px;"></div>
+<p><em>지도를 클릭해주세요!</em></p> 
+<div id="clickLatlng"></div>
+
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=c8d0ae031119b5383c24351164f52b37"></script>
+<script>
+var mapContainer = document.getElementById('map') // 지도를 표시할 div 
+var mapOption = { 
+        center: new daum.maps.LatLng(<%= @p.lat.to_i %>, <%= @p.lng.to_i %>), // 지도의 중심좌표
+        level: 3 // 지도의 확대 레벨
+    };
+
+var map = new daum.maps.Map(mapContainer, mapOption); // 지도를 생성합니다
+
+// 지도를 클릭한 위치에 표출할 마커입니다
+var marker = new daum.maps.Marker({ 
+    // 지도 중심좌표에 마커를 생성합니다 
+    position: map.getCenter() 
+}); 
+// 지도에 마커를 표시합니다
+marker.setMap(map);
+marker.setDraggable(true); 
+
+
+// 지도에 클릭 이벤트를 등록합니다
+// 지도를 클릭하면 마지막 파라미터로 넘어온 함수를 호출합니다
+daum.maps.event.addListener(map, 'click', function(mouseEvent) {        
+    
+    // 클릭한 위도, 경도 정보를 가져옵니다 
+    var latlng = mouseEvent.latLng; // latlng: 값들의 덩어리인 객체
+    
+    // 마커 위치를 클릭한 위치로 옮깁니다
+    marker.setPosition(latlng);
+    
+    var lat = latlng.getLat();
+    var lng = latlng.getLng();
+    
+    console.log(lat);
+    console.log(lng);
+    
+    document.getElementById('lat').value = lat;
+    document.getElementById('lng').value = lng;
+    
+    var iwContent = '<div style="padding:5px;">내가 클릭해쩡!</div>', // 인포윈도우에 표출될 내용으로 HTML 문자열이나 document element가 가능합니다
+    iwPosition = new daum.maps.LatLng(lat, lng), //인포윈도우 표시 위치입니다
+    iwRemoveable = true; // removeable 속성을 ture 로 설정하면 인포윈도우를 닫을 수 있는 x버튼이 표시됩니다
+
+// 인포윈도우를 생성하고 지도에 표시합니다
+    var infowindow = new daum.maps.InfoWindow({
+        map: map, // 인포윈도우가 표시될 지도
+        position : iwPosition, 
+        content : iwContent,
+        removable : iwRemoveable
+    });
+
+    
+    // var resultDiv = document.getElementById('clickLatlng'); 
+    // resultDiv.innerHTML = message;
+    
+});
+</script>
